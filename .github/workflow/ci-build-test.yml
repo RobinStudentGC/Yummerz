@@ -1,0 +1,35 @@
+name: CI + build only
+
+on:
+  pull_request:
+    branches: 
+      - main
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: 
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist
+
+      - name: Run tests
+        run: |
+          mkdir -p test-results
+          composer test -- --log-junit test-results/junit.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results
